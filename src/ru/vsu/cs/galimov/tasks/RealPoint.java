@@ -1,7 +1,8 @@
 package ru.vsu.cs.galimov.tasks;
 
 public class RealPoint {
-    private double x, y;
+    private final double x;
+    private final double y;
 
     public RealPoint(double x, double y) {
         this.x = x;

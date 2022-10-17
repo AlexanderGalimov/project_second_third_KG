@@ -3,7 +3,7 @@ package ru.vsu.cs.galimov.tasks.drawers;
 import java.awt.*;
 
 public class DDALineDrawer implements LineDrawer{
-    private PixelDrawer pd;
+    private final PixelDrawer pd;
 
     public DDALineDrawer(PixelDrawer pd) {
         this.pd = pd;
@@ -26,6 +26,11 @@ public class DDALineDrawer implements LineDrawer{
         if(dx != 0){
             for (int i = 0; i <= dx; i++) {
                 pd.drawPixel(x1 + i, (int)(y1 + i * dy / dx), Color.BLACK);
+            }
+        }
+        if(dy != 0){
+            for (int i = 0; i < dy; i++) {
+                pd.drawPixel(x1 + i, (int)(y1 + i * dx / dy), Color.BLACK);
             }
         }
     }
