@@ -1,47 +1,47 @@
 package ru.vsu.cs.galimov.tasks;
 
 public class CandleStick {
-    int enterValue;
-    int outValue;
-    int maxValue;
-    int minValue;
+    private RealPoint enterValue;
+    private RealPoint outValue;
+    private RealPoint maxValue;
+    private RealPoint minValue;
 
-    public CandleStick(int enterX, int outX, int max, int min) {
-        this.enterValue = enterX;
-        this.outValue = outX;
-        this.maxValue = max;
-        this.minValue = min;
+    public CandleStick(RealPoint enterValue, RealPoint outValue, RealPoint maxValue, RealPoint minValue) {
+        this.enterValue = enterValue;
+        this.outValue = outValue;
+        this.maxValue = maxValue;
+        this.minValue = minValue;
     }
 
-    public int getEnterValue() {
+    public RealPoint getEnterValue() {
         return enterValue;
     }
 
-    public void setEnterValue(int enterValue) {
+    public void setEnterValue(RealPoint enterValue) {
         this.enterValue = enterValue;
     }
 
-    public int getOutValue() {
+    public RealPoint getOutValue() {
         return outValue;
     }
 
-    public void setOutValue(int outValue) {
+    public void setOutValue(RealPoint outValue) {
         this.outValue = outValue;
     }
 
-    public int getMaxValue() {
+    public RealPoint getMaxValue() {
         return maxValue;
     }
 
-    public void setMaxValue(int maxValue) {
+    public void setMaxValue(RealPoint maxValue) {
         this.maxValue = maxValue;
     }
 
-    public int getMinValue() {
+    public RealPoint getMinValue() {
         return minValue;
     }
 
-    public void setMinValue(int minValue) {
+    public void setMinValue(RealPoint minValue) {
         this.minValue = minValue;
     }
 }
