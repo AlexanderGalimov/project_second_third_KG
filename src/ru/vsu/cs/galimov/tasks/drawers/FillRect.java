@@ -9,10 +9,10 @@ public class FillRect {
         this.pd = pd;
     }
 
-    public void drawRect(int x, int y, int width, int height){
+    public void drawRect(int x, int y, int width, int height, Color color){
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                pd.drawPixel(x + j, y + i , Color.RED);
+                pd.drawPixel(x + j, y + i , color);
             }
         }
     }

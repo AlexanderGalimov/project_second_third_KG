@@ -22,13 +22,13 @@ public class BresenhaimLineDrawer {
             int dy = y2 - y1;
 
             if (Math.abs(dx) > Math.abs(dy)) {
-                pdx = sign(dx);
+                pdx = (int) Math.signum(dx);
                 pdy = 0;
                 xORyWay1 = Math.abs(dy);
                 xORyWay2 = Math.abs(dx);
             } else {
                 pdx = 0;
-                pdy = sign(dy);
+                pdy = (int) Math.signum(dy);
                 xORyWay1 = Math.abs(dx);
                 xORyWay2 = Math.abs(dy);
             }
@@ -42,8 +42,8 @@ public class BresenhaimLineDrawer {
                 a -= xORyWay1;
                 if (a < 0) {
                     a += xORyWay2;
-                    x1 += sign(dx);
-                    y1 += sign(dy);
+                    x1 += (int) Math.signum(dx);
+                    y1 += (int) Math.signum(dy);
                 } else {
                     x1 += pdx;
                     y1 += pdy;

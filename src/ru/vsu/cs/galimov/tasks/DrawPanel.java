@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.net.DatagramSocketImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -13,16 +14,17 @@ import java.util.Random;
 public class DrawPanel extends JPanel {
     private int currentX, currentY;
     private final ScreenConverter converter;
-    private final Line ox;
-    private final Line oy;
+    private Line ox;
+    private Line oy;
     private Line current = null;
     private Point lastP;
     private final java.util.List<Line> lines = new ArrayList<>();
     private static final List<CandleStick> candleStickList = new ArrayList<>();
     private static final double timeLength = 1;
-    private final double SIZE = 15;
+    private double SIZE = 15;
     private boolean isInit = true;
     private final Random random = new Random();
+    GridDrawing drawing;
 
 
     /*private static Line find(java.util.List<Line> all, ScreenConverter sc, ScreenPoint p, int eps){
@@ -50,24 +52,20 @@ public class DrawPanel extends JPanel {
 
     public DrawPanel() {
 
-        converter = new ScreenConverter(800,600, -SIZE, SIZE, 2 * SIZE, 2* SIZE);
-        ox = new Line(new RealPoint(-SIZE * 2 / 3,0), new RealPoint(2 * SIZE,0));
-        oy = new Line(new RealPoint(-SIZE * 2 / 3,-SIZE), new RealPoint(-SIZE * 2 / 3, SIZE));
+        converter = new ScreenConverter(800,600, -SIZE, SIZE, 2 * SIZE, 2 * SIZE);
+        drawing = new GridDrawing(converter);
 
         this.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if(lastP != null){
                     Point curP = e.getPoint();
-                    ScreenPoint delta = new ScreenPoint(curP.x - lastP.x,curP.y - lastP.y);
+                    ScreenPoint delta = new ScreenPoint(-curP.x + lastP.x,-curP.y + lastP.y);
                     RealPoint deltaR = converter.s2r(delta);
                     converter.setX(deltaR.getX());
                     converter.setY(deltaR.getY());
                     lastP = curP;
-                }
-                if(current != null){
-                    ScreenPoint p = new ScreenPoint(e.getX(), e.getY());
-                    current.setP2(converter.s2r(p));
+                    converter.moveCorner(deltaR);
                 }
                 repaint();
             }
@@ -87,8 +85,7 @@ public class DrawPanel extends JPanel {
             for (int i = Math.abs(count); i > 0 ; i--) {
                 coef *= base;
             }
-            converter.setWidth(converter.getWidth() * coef);
-            converter.setHeight(converter.getHeight() * coef);
+            converter.changeScale(coef);
             repaint();
         });
 
@@ -148,10 +145,10 @@ public class DrawPanel extends JPanel {
         LineDrawer ld = new DDALineDrawer(new GraphicsPixelDrawer(biG));
 
         biG.setColor(Color.BLACK);
-        drawLine(ld,converter,ox);
-        drawLine(ld,converter,oy);
-        drawValueOnOy(ld, converter);
-        drawValueOnOx(ld, converter);
+        /*drawLine(ld,converter,ox);
+        drawLine(ld,converter,oy);*/
+        //drawValueOnOy(ld, converter);
+        //drawValueOnOx(ld, converter);
 
         /*for (Line line : lines) {
             drawLine(ld, converter, line);
@@ -159,12 +156,13 @@ public class DrawPanel extends JPanel {
         if(current != null){
             drawLine(ld,converter, current);
         }*/
+        drawing.draw(ld,biG);
 
         FillRect fillRect = new FillRect(new GraphicsPixelDrawer(biG));
         CandleStick currStick;
         if(isInit){
             for (int i = 0; i < 10; i++) {
-                double enterValue = random.nextInt(7) + 1;
+                double enterValue = random.nextInt(10) + 1;
                 double deltaOut = random.nextInt(3) + 0.5;
                 double deltaMax = random.nextInt(3) + 0.5;
                 double deltaMin = random.nextInt(3) + 0.5;
@@ -174,25 +172,26 @@ public class DrawPanel extends JPanel {
                 currStick = new CandleStick(new RealPoint(i * 2, enterValue), new RealPoint(i * 2, enterValue + deltaOut), new RealPoint(i * 2 + timeLength / 2,enterValue + deltaOut + deltaMax), new RealPoint(i * 2 + timeLength / 2,enterValue - deltaMin ));
                 candleStickList.add(currStick);
             }
-           //isInit = false;
+            isInit = false;
         }
 
-        for (CandleStick stick : candleStickList) {
-            drawCandleStick(fillRect, ld, converter, stick);
+        for (int i = 0; i < candleStickList.size() - 1; i++) {
+            if(i == 0){
+                drawCandleStick(fillRect, ld, converter, candleStickList.get(i), Color.GREEN);
+            }if(candleStickList.get(i).getEnterValue().getY() > candleStickList.get(i + 1).getEnterValue().getY()){
+                drawCandleStick(fillRect, ld, converter, candleStickList.get(i + 1), Color.RED);
+            }
+
+            else{
+                drawCandleStick(fillRect, ld, converter, candleStickList.get(i + 1), Color.GREEN);
+            }
         }
-        candleStickList.clear();
 
         g2d.drawImage(bi,0,0,null);
         biG.dispose();
     }
 
-    private void drawLine(LineDrawer ld,ScreenConverter sc, Line l){
-        ScreenPoint p1 = sc.r2s(l.getP1());
-        ScreenPoint p2 = sc.r2s(l.getP2());
-        ld.drawLine(p1.getX(),p1.getY(), p2.getX(), p2.getY());
-    }
-
-    private void drawCandleStick(FillRect fillRect,LineDrawer drawer, ScreenConverter converter, CandleStick stick){
+    private void drawCandleStick(FillRect fillRect,LineDrawer drawer, ScreenConverter converter, CandleStick stick, Color color){
         ScreenPoint sp1 = converter.r2s(stick.getEnterValue());
         ScreenPoint sp2 = converter.r2s(stick.getOutValue());
         ScreenPoint sp3 = converter.r2s(stick.getMaxValue());
@@ -203,18 +202,6 @@ public class DrawPanel extends JPanel {
         drawer.drawLine(2 * (sp3.getX() - sp1.getX()) + sp1.getX(), sp1.getY(), 2 * (sp3.getX() - sp1.getX()) + sp2.getX(), sp2.getY());
         drawer.drawLine(sp3.getX(), sp2.getY(), sp3.getX(), sp3.getY());
         drawer.drawLine(sp4.getX(), sp1.getY(), sp4.getX(), sp4.getY());
-        fillRect.drawRect(sp2.getX(), sp2.getY(), 2 * (sp3.getX() - sp1.getX()), sp1.getY() - sp2.getY());
-    }
-
-    private void drawValueOnOy(LineDrawer drawer, ScreenConverter converter){
-        for (int i = 0; i < 2 * SIZE; i++) {
-            drawLine(drawer,converter,new Line(new RealPoint(-SIZE * 2 / 3 - 0.1,0.5 * (i + timeLength)), new RealPoint(-SIZE * 2 / 3 + 0.1, 0.5 * (i + timeLength))));
-        }
-    }
-
-    private void drawValueOnOx(LineDrawer drawer, ScreenConverter converter){
-        for (int i = 0; i < 2 * SIZE; i++) {
-            drawLine(drawer,converter,new Line(new RealPoint(-SIZE * 2 / 3 + (i + timeLength),0.1), new RealPoint(-SIZE * 2 / 3 + (i + timeLength),-0.1)));
-        }
+        fillRect.drawRect(sp2.getX(), sp2.getY(), 2 * (sp3.getX() - sp1.getX()), sp1.getY() - sp2.getY(), color);
     }
 }
