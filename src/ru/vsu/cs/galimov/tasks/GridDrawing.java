@@ -7,7 +7,7 @@ import java.text.DecimalFormat;
 
 public class GridDrawing {
     private final ScreenConverter sc;
-    private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
+    private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
     private final int DEFAULT_FONT_SIZE = 12;
     private Font font = null;
     private final int COEFCUT = 96;
@@ -23,23 +23,20 @@ public class GridDrawing {
 
     private void drawCoordinateAndGrid(LineDrawer ld, Graphics2D g2d) {
         g2d.setFont(getFont(DEFAULT_FONT_SIZE));
-        // Draws a grid to the right of the coordinate line
+
         for (double x = 0; x < sc.getX() + sc.getWidth(); x += distance(0, sc.getWidth())) {
             drawXGrid(ld, g2d, COEFCUT, x);
         }
 
-        // Draws a grid to the left of the coordinate line
         for (double x = 0; x > sc.getX() - sc.getWidth(); x -= distance(0, sc.getWidth())) {
             drawXGrid(ld, g2d, COEFCUT, x);
 
         }
 
-        // Draws a grid to the up of the coordinate line
         for (double y = 0; y < sc.getY() + sc.getHeight(); y += distance(0, sc.getHeight())) {
             drawYGrid(ld, g2d, COEFCUT, y);
         }
 
-        // Draws a grid to the down of the coordinate line
         for (double y = 0; y > sc.getY() - sc.getHeight(); y -= distance(0, sc.getHeight())) {
             drawYGrid(ld, g2d, COEFCUT, y);
         }
@@ -54,7 +51,7 @@ public class GridDrawing {
     private void drawYGrid(LineDrawer ld, Graphics2D g2d, int ax, double y) {
         drawOneLine(ld, new Line(new RealPoint(-sc.getWidth() / ax, y), new RealPoint(sc.getWidth() / ax, y)), Color.BLACK);
         ScreenPoint point = sc.r2s(new RealPoint(-sc.getWidth() / ax, y));
-        g2d.drawString(decimalFormat.format(y), point.getX() + 20, point.getY() - 8);
+        g2d.drawString(decimalFormat.format(y), point.getX() - 20, point.getY() - 8);
     }
 
     private void drawXGrid(LineDrawer ld, Graphics2D g2d, int ax, double x) {

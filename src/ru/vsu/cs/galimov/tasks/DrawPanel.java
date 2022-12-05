@@ -4,9 +4,10 @@ import ru.vsu.cs.galimov.tasks.drawers.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.net.DatagramSocketImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -14,8 +15,6 @@ import java.util.Random;
 public class DrawPanel extends JPanel {
     private int currentX, currentY;
     private final ScreenConverter converter;
-    private Line ox;
-    private Line oy;
     private Line current = null;
     private Point lastP;
     private final java.util.List<Line> lines = new ArrayList<>();
@@ -143,6 +142,8 @@ public class DrawPanel extends JPanel {
         biG.fillRect(0,0,getWidth(),getHeight());
 
         LineDrawer ld = new DDALineDrawer(new GraphicsPixelDrawer(biG));
+        //LineDrawer ld = new BresenhamLineDrawer(new GraphicsPixelDrawer(biG));
+        //LineDrawer ld = new WULineDrawer(new GraphicsPixelDrawer(biG));
 
         biG.setColor(Color.BLACK);
         /*drawLine(ld,converter,ox);
